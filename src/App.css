@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+    background-color: #f5f5f5;
+}
+
+button {
+    user-select: none;
+}
+
+label {
+    margin-bottom: .5rem;
+    margin-top: .6rem;
+    font-size: .8rem;
+    font-weight: b;
+    color: #112827;
+}
+
+input,
+textarea {
+    border: 1px solid;
+    padding: .1rem, .3rem;
+    border-radius: .2rem;
+    margin-bottom: 2rem;
+}
+
+.notes {
+    margin-bottom: .8rem;
+}
+
+table,
+th {
+    border: 3px solid;
+}
+
+.total {
+    border: px solid;
+}
+
+button {
+    background-color: #008080;
+}
+
+.header {
+    background-color: #008080;
+    text-align: center;
+    color: #f5f5f5;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    display: inline;
+    margin: 3px;
+}
