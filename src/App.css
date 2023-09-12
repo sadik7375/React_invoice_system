@@ -20,7 +20,7 @@ label {
 input,
 textarea {
     border: 1px solid;
-    padding: .1rem, .3rem;
+    padding: .1rem, .1rem;
     border-radius: .2rem;
     margin-bottom: 2rem;
 }

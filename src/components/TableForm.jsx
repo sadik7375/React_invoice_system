@@ -7,191 +7,265 @@ import collect from "collect.js";
 
 
 // eslint-disable-next-line react/prop-types
-const TableForm = ({ total, settotal, list, setlist, description, quantity, price, amount, setdescription, setquantity, setamount, setprice }) => {
+const TableForm = ({ tax,settax,discount,setdiscount,shippingcost,setshippingcost, total, settotal, list, setlist, description, quantity, price, amount, setdescription, setquantity, setamount, setprice }) => {
 console.log("setlist",list)
   const [isEditing, setIsEditing] = useState(false);
-  //calculate amount function
-  useEffect(() => {
-    const calculateAmount = (amount) => {
-
-      setamount(price * quantity)
-    }
-
-    calculateAmount(amount)
-
-  }, [amount, price, quantity, setamount])
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (description === "" || price === "" || quantity === "") {
-      alert("please Fill the Inputs")
-
-    }
-    else {
-
-      const newitems = {
-        id: Date.now(),
-        description,
-        quantity,
-        price,
-        amount
-      }
+  const [previousTotal, setPreviousTotal] = useState(0);
 
 
 
+  // const calculateTotal = () => {
+  //   const allItems = list.map((item) => item.price);
+  //   //question why do useffect here??
+  //   settotal(collect(allItems).sum());
+  // };
+
+  // useEffect(() => {
+  //   calculateTotal();
+  // });
 
 
-      setdescription("");
-      setamount("");
-      setprice("");
-      setquantity("");
-      setlist([...list, newitems])
-
-      setIsEditing(false);
-
-    }
-
-
+  const newitems = {
+    id: Date.now(),
+    description,
+    quantity,
+    price,
+    amount
   }
 
-  //Edit function
-
-  const editingrow = (id) => {
-    console.log(id);
-
-    const editrow = list.find((row) => row.id === id);
-    console.log(editrow);
-
-    setlist(list.filter((row) => row.id !== id))
-    setIsEditing(true);
-    setdescription(editrow.description)
-    setquantity(editrow.quantity)
-    setprice(editrow.price)
-    setamount(editrow.amount)
+  
 
 
+  const handleClick=()=>{
+   
+    setlist([...list,newitems])
+    setquantity("")
+    setprice("")
+    setamount("")
+  
 
-  }
+}
+const handleChange=(e,i)=>{
+  const { name, value } = e.target;
+  const updatedList = [...list];
+  updatedList[i][name] = value;   //create key with value.index 0 name key description value
+  console.log(updatedList[i][name]);
 
+  // Calculate amount based on the updated price and quantity
+  updatedList[i].amount = parseFloat(updatedList[i].price) * parseInt(updatedList[i].quantity);
 
-
-  //delete function
-
-  // eslint-disable-next-line react/prop-types
-  const deleterow = (id) => {
-    console.log(id);
-
-    setlist(list.filter((row) => row.id !== id))
-    // alert("Are you sure you want to delere")
-  }
-
-  //calculate total amount of items in table
-
-
-
-  const calculateTotal = () => {
-    const allItems = list.map((item) => item.price);
-    //question why do useffect here??
-    settotal(collect(allItems).sum());
-  };
-
-  useEffect(() => {
-    calculateTotal();
+  let totalAmount = 0;
+  updatedList.forEach(item => {
+    totalAmount += item.amount || 0; // Ensure amount is a number or default to 0
   });
 
+  settotal(totalAmount); // Assuming you have a state for totalAmount
+
+
+
+  setlist(updatedList);
 
 
 
 
+}
+const handleDelete=(i)=>{
+
+  if(i===0)
+  { 
+
+    setlist([
+      // Default row
+      { id: 0, description: '', quantity: '', price: '' ,tax:'', amount: 0 },
+    ]);
+    settotal("");
+     
+  }else{
+    const deleteVal = [...list]
+  deleteVal.splice(i,1)
+  setlist(deleteVal)
+  }
+}
+
+//add tax
+  
+  const handletax = (e) => {
+    let value = 0;
+    value=e.target.value.trim(); 
+    // Remove leading and trailing spaces
+    console.log(value)
+   e.preventDefault();
+    if (value ==='') {
+      settax(''); // Update the tax value if needed
+      settotal(total);  // Reset total to the previous value
+      return;
+    }
+  
+   
+    settax(value);
+     let totaltax=0;
+     totaltax = (total * value) / 100;
+     console.log(totaltax)
+   let finalresult = total + totaltax;
+    settotal( finalresult);
+  };
+  
+  
+  
+
+
+ 
+  useEffect(() => {
+    setPreviousTotal(total); // Update the previous total whenever total changes
+  }, [total,tax]);
+ 
+
+
+
+ 
+
+
+
+console.log(tax)
+//add shipping cost
+const handleshippingcost=(e)=>{
+  const value=e.target.value;
+  setshippingcost(value);
+  
+  
+
+
+}
+//add discount
+const handlediscount=(e)=>{
+  const value=e.target.value
+  setdiscount(value);
+
+  const totaldiscount=(total*value)/100
+
+  const finaldiscounttotal=total-totaldiscount
+  settotal(finaldiscounttotal)
+   
+
+
+}
+
+console.log(tax)
+console.log(shippingcost)
+console.log(discount)
 
   return (
     <>
-      <form onSubmit={handleSubmit} >
+      
 
 
-        <div  >
-          <label className="mr-4" htmlFor="description">Item description</label>
-          <input placeholder='' className="mt-8" type="text" name="desc" id="des" value={description} onChange={(e) => setdescription(e.target.value)} />
-        </div>
-        
-        <article className="md:grid grid-cols-3 gap-10">
-          <div className="flex flex-col qp" >
-            <label htmlFor="quan">Quantity</label>
-            <input type="text" name="desc" id="des" value={quantity} onChange={(e) => setquantity(e.target.value)} />
-          </div>
-          <div className="flex flex-col " >
-            <label htmlFor="price">Price</label>
-            <input type="text" name="desc" id="des" value={price} onChange={(e) => setprice(e.target.value)} />
-          </div>
-          <div className="flex flex-col " >
-            <label htmlFor="price">Price</label>
-            <input type="text" name="desc" id="des" value={price} onChange={(e) => setprice(e.target.value)} />
-          </div>
-          <div className="flex flex-col " >
-            <label htmlFor="price">Price</label>
-            <input type="text" name="desc" id="des" value={price} onChange={(e) => setprice(e.target.value)} />
-          </div>
-          <div className="flex flex-col " >
-            <label htmlFor="amount">Amount</label>
-            {/* <input type="text" name="desc" id="des" value={amount} onChange={(e)=>setamount(e.target.value) } /> */}
-            <p className="amount" >{amount}</p>
-          </div>
-        </article>
-        <button type="submit" className=' bg-blue-400 text-white py-2 px-3 mb-3 rounded-shadow border-2 border-blue-500 hover:bg-transparent hover:text-blue-500 transition-all duration-300 mt-7'>
-
-          {isEditing ? "Edit Item" : "Add Item"}
-
-        </button>
-      </form>
-
+     <div>
+       
+      </div>
+      <div className="mx-auto mt-10">
       <table>
-        <tr>
-          <td>Description</td>
-          <td>Quantity</td>
-          <td>Price</td>
-          <td>Amount</td>
+      <tr className='bg-gray-200'>
+          <td className="border border-gray-400 p-2 ">Description</td>
+          <td className="border border-gray-400 p-2">Quantity</td>
+          <td className="border border-gray-400 p-2">Price</td>
+          <td className="border border-gray-400 p-2">vat</td>
+          <td className="border border-gray-400 p-2">Amount</td>
 
         </tr>
+        <tbody>
+      {list.map((val, i) => (
+        <tr key={val.id}>
+          <td className=" p-2">
+            <input
+              className="w-full"
+              name="description"
+              placeholder=""
+              value={val.description}
+              onChange={(e) => handleChange(e, i)}
+            />
+          </td>
+          <td className=" p-2">
+            <input
+              className="w-full"
+              name="quantity"
+              value={val.quantity}
+              placeholder=""
+              onChange={(e) => handleChange(e, i)}
+            />
+          </td>
+          <td className=" p-2">
+            <input
+              className="w-full"
+              name="price"
+              value={val.price}
+              placeholder=""
+              onChange={(e) => handleChange(e, i)}
+            />
+          </td>
+          <td className=" p-2">
+            <input
+              className="w-full"
+              name="tax"
+              value={val.tax}
+              placeholder=""
+              onChange={(e) => handleChange(e, i)}
+            />
+          </td>
+          <td className=" p-2">{val.amount}</td>
+          <td className=" p-2">
+            <button
+              className="bg-red-100 px-2 py-1 rounded"
+              onClick={() => handleDelete(i)}
+            >
+              X
+            </button>
+          </td>
+        </tr>
+      ))}
 
 
+      
+    </tbody>
+            </table>
+            <label htmlFor="tax">Tax</label>
+            <input
+              className="w-full"
+              name=""
+              value={tax}
+              placeholder=""
+              onChange={(e)=>handletax(e)}
+             
+            />
+            <label htmlFor="discount">Discount</label>
+            <input
+              className="w-full"
+              name="price"
+              value={discount}
+              placeholder=""
+              onChange={(e)=>handlediscount(e)}
+             
+            />
 
-        {list.map((item) => (
+<label htmlFor="shipping cost">Shipping cost</label>
+            <input
+              className="w-full"
+              name="price"
+              value={shippingcost}
+              placeholder=""
+              onChange={(e)=>handleshippingcost(e)}
 
+             
+            />
+            <p>{total}</p>
+            <button className='bg-blue-100 mt-5 ' onClick={handleClick}>Add Items</button>
+            
+       
 
-          <React.Fragment key={item.id}>
-
-            <tbody>
-              <tr>
-                <td >{item.description}</td>
-                <td>{item.quantity}</td>
-                <td>{item.price}</td>
-                <td>{item.amount}</td>
-                <td><button onClick={() => editingrow(item.id)} className="bg-green-500 text-white fonr p-1 font-size: 0.1rem" > Edit</button>
-                  <button onClick={() => deleterow(item.id)} className="bg-red-500 text-white p-1"  > Delete</button></td>
-               
-
-              </tr>
-            </tbody>
-
-          </React.Fragment>
-
-
-        ))}
-
-
-
-
-      </table>
-      <div>
-        <p className="font-bold text-1xl mt-3 total ">TOTAL:{total}</p>
       </div>
-
-
-
-
-
-
+      
+              
+      
+       
     </>
 
   );
